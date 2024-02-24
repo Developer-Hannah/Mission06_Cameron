@@ -1,26 +1,30 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Mission06_Cameron.Models
 {
     public class Form
     {
+        //set the attributes of the Form class
         [Key]
         [Required]
-        public int FormID { get; set;  }
+        public int MovieId { get; set;  }
         // public int GetFormID { get;} // read only varriable
-        [Required(ErrorMessage = "Category is requiered!")]
-        public string Category { get; set; }
+        [ForeignKey("CategoryId")] //CategoryId
+        public int? CategoryId { get; set; }
+        public Category? CategoryName { get; set; } //CategoryName
         [Required(ErrorMessage = "Title is requiered!")]
         public string Title { get; set; }
-        [Required(ErrorMessage = "Year is requiered!")]
+        [Range(1888, int.MaxValue, ErrorMessage = "Year must be 1888 or later.")]
         public int Year { get; set; }
-        [Required(ErrorMessage = "Director is requiered!")]
-        public string Director { get; set; }
-        [Required(ErrorMessage = "Rating is requiered!")]
-        public string Rating { get; set; }
-        public string Edited { get; set; }
-        public string LentTo  { get; set; }
+        public string? Director { get; set; }
+        public string? Rating { get; set; }
+        [Required(ErrorMessage = "Edited is requiered!")]
+        public int Edited { get; set; }
+        public string? LentTo { get; set; }
+        [Required(ErrorMessage = "Copied To Plex is requiered!")]
+        public int CopiedToPlex { get; set; }
         [StringLength(25, ErrorMessage = "Notes cannot be more than 25 charachters")]
-        public string Notes { get; set; }
+        public string? Notes { get; set; }
 }
 }

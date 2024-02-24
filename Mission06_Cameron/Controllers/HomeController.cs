@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.EntityFrameworkCore;
 using Mission06_Cameron.Models;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 
 namespace Mission06_Cameron.Controllers
@@ -8,7 +11,7 @@ namespace Mission06_Cameron.Controllers
     {
         //private readonly ILogger<HomeController> _logger; // Constructor (ILogger of type home controller)
 
-        private readonly CollectionFormContext _context;
+        private CollectionFormContext _context;
 
         public HomeController(CollectionFormContext temp) // Constructor
         {
@@ -17,7 +20,7 @@ namespace Mission06_Cameron.Controllers
 
         //public HomeController(ILogger<HomeController> logger)
         //{
-            //_logger = logger;
+        //_logger = logger;
         //}
 
         public IActionResult Index()
@@ -30,19 +33,82 @@ namespace Mission06_Cameron.Controllers
             return View();
         }
 
+        // Create get and post actions for collection
         [HttpGet]
-        public IActionResult collection ()
+        public IActionResult collection()
         {
-            return View("collection");
+            ViewBag.Categories = _context.Categories.ToList();
+
+            return View("collection", new Form());
         }
 
         [HttpPost]
         public IActionResult collection(Form response)
+
         {
-            _context.Forms.Add(response); // Add record to the database
+            if (ModelState.IsValid)
+            {
+                _context.Movies.Add(response); // Add record to the database
+                _context.SaveChanges();
+
+                return View("Confirmation", response);
+            }
+            else
+            {
+                ViewBag.Categories = _context.Categories.ToList();
+
+                return View(response);
+            }
+        }
+
+        // Create action for Enteries
+        public IActionResult Enteries ()
+        {
+            var forms = _context.Movies.Include(x => x.CategoryName).ToList();
+
+
+            return View(forms);
+
+        }
+
+        // Create get and post actions for Edit
+        [HttpGet]
+        public IActionResult Edit(int id)
+        {
+            var recordToEdit = _context.Movies.Single(x => x.MovieId == id);
+
+            ViewBag.Categories = _context.Categories.ToList();
+
+            return View("collection", recordToEdit);
+        }
+
+        [HttpPost]
+        public IActionResult Edit(Form updatedInfo)
+        {
+            _context.Update(updatedInfo);
             _context.SaveChanges();
 
-            return View("collection");
+
+            return RedirectToAction("Enteries");
         }
+
+        // Create get and post actions for Delete
+        [HttpGet]
+        public IActionResult Delete(int id)
+        {
+           var recordToDelete = _context.Movies.Single(x => x.MovieId == id);
+
+            return View(recordToDelete);
+        }
+
+        [HttpPost]
+        public IActionResult Delete(Form form)
+        {
+            _context.Movies.Remove(form);
+            _context.SaveChanges();
+
+            return RedirectToAction("Enteries");
+        }
+
     }
 }
